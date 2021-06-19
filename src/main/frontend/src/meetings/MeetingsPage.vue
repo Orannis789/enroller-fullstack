@@ -2,13 +2,12 @@
   <div>
     <new-meeting-form @added="addNewMeeting($event)"></new-meeting-form>
 
-    <span v-if="meetings.length == 0">
+    <h4 v-if="meetings.length == 0">
                Brak zaplanowanych spotkań.
-           </span>
+    </h4>
     <h3 v-else>
       Zaplanowane zajęcia ({{ meetings.length }})
     </h3>
-
     <meetings-list :meetings="meetings"
                    :username="username"
                    @attend="addMeetingParticipant($event)"
@@ -26,22 +25,66 @@
         props: ['username'],
         data() {
             return {
-                meetings: []
+                meetings:[]
             };
         },
         methods: {
             addNewMeeting(meeting) {
-                this.meetings.push(meeting);
+			    
+				this.$http.post('meetings', meeting)
+					.then(response => {
+						this.$http.get('meetings')
+						.then(response => {
+						this.meetings=response.data
+						})
+						.catch(response => {});
+                    })
+                    .catch(response => {});
             },
             addMeetingParticipant(meeting) {
-                meeting.participants.push(this.username);
+			
+			this.$http.post('meetings/' + meeting.id + '/participants/' + this.username, meeting)
+					.then(response => {
+						this.$http.get('meetings/'+ meeting.id + '/participants/')
+						.then(response => {
+						meeting.participants=response.data
+						})
+                    })
+                    .catch(response => {});
+                
             },
             removeMeetingParticipant(meeting) {
-                meeting.participants.splice(meeting.participants.indexOf(this.username), 1);
+			
+			this.$http.delete('meetings/' + meeting.id + '/participants/' + this.username, meeting)
+					.then(response => {
+						this.$http.get('meetings/'+ meeting.id + '/participants/')
+						.then(response => {
+						meeting.participants=response.data
+						})
+                    })
+                    .catch(response => {});  
+					
+
             },
             deleteMeeting(meeting) {
-                this.meetings.splice(this.meetings.indexOf(meeting), 1);
-            }
-        }
-    }
+			
+			this.$http.delete('meetings/' + meeting.id, meeting)
+					.then(response => {
+						this.$http.get('meetings')
+						.then(response => {
+						this.meetings=response.data
+						})
+                    })
+                    .catch(response => {});                
+            }		
+		},
+		 mounted() {
+
+            this.$http.get('meetings')
+					.then(response => {
+					this.meetings=response.data
+                    })
+                    .catch(response => {});
+        },
+	};
 </script>

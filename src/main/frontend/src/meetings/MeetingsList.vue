@@ -2,29 +2,33 @@
   <table v-if="meetings.length > 0">
     <thead>
     <tr>
+	  <th>Id</th>
       <th>Nazwa spotkania</th>
+	  <th>Data</th>
       <th>Opis</th>
       <th>Uczestnicy</th>
       <td></td>
     </tr>
     </thead>
     <tbody>
-    <tr v-for="meeting in meetings" :key="meeting.name">
-      <td>{{ meeting.name }}</td>
+    <tr v-for="meeting in meetings" :key="meeting.title">
+	  <td>{{ meeting.id }}</td>
+      <td>{{ meeting.title }}</td>
+	  <td>{{ meeting.date }}</td>
       <td>{{ meeting.description }}</td>
       <td>
         <ul v-if="meeting.participants">
-          <li v-for="participant in meeting.participants" :key="participant">
-            {{ participant }}
+          <li v-for="participant in meeting.participants" :key="participant.login">
+            {{ participant.login }}
           </li>
         </ul>
       </td>
       <td style="text-align: right; min-width: 400px">
-        <button v-if="meeting.participants.indexOf(username) < 0" class="button-outline"
+        <button class="button-outline"
                 @click="$emit('attend', meeting)">
           Zapisz się
         </button>
-        <button v-else class="button-outline" @click="$emit('unattend', meeting)">Wypisz się</button>
+        <button class="button-outline" @click="$emit('unattend', meeting)">Wypisz się</button>
         <button v-if="meeting.participants.length === 0" class="button" @click="$emit('delete', meeting)">
           Usuń puste spotkanie
         </button>
